@@ -1,0 +1,267 @@
+Alexander Beman README(Nick and I worked on everything together so he asked if the same readme could be used for both)
+
+The class I was initially repsonsible for along with Nick was the modular matrix; however, I became a part of writing Encoder during the last few days of the Project. My primary concern  was the modular matrix, the modular matrix is a boolean array that represents the actual QRCode that needs to be printed out using a GUI with a graphical user interface. The ModularMatrix is were all the logic fo how to actually create a QRcode come from(how to populate the QRCode with all of its function field and data). The QrCode is suppose to be passed a vector of chars which are all 0's and 1's; this vector is the users inputed string encoded and intweaved with the the resulting error correction code created for the input. The modular takes a created encoding which is stored inside a QRcode object and extracts from the QRcode objcect the encoded message/version/error correction level. From this information the modular matrix can be created, and have the encoded message stored  and masked on it following the algorithm was pacing data bits described on the tutorial.
+Our implementation creates two modular matrixs: One for the user to have access too that returns as an instance of this class, and another matrix which is used to determine bit placement in the final Matrix. The second matrix instead of being a boolean array is an array of structs which are booleans which decribe what every coordinate in the Modular Matrix is being used for and whether or not that space is available for overwriting. Every time any function pattern is added to the Modular Matrix being used to print the secondary array matrixInfo is updated so that when the next function field is placed into the Modular Matrix it knows which spaces is has aceess two and which are reserved. With Nick, I took part in encoding the entire Module Matrix class, and handled figuring out the logic how how to actually generate a QRcode in this fashion. 
+We designed the project as a team, so the entire idea for how the modular matrix functions was a decision we made as a pair. Ontop of this role however during the final few days of the project I also had to take part of writing the Encoding classes and then subsequently debugging them. The main help I added to that part of the project was commenting all of the classes and fixing errors that were left inside of the encoding class. I ran out of time for debugging the encoding classes. The modular matrix class I am confident is working correctly and encodes any given encoded string correctly. I believe that the process of actually encoding the user input is still buggy however because it was pushed off to the last few days and I had a limited time frame to debug it. We did get it to a point however that the project works in a number of cases, and no matter what a QRcode is created. The biggest difficulties I found with the encoder section was reading and going through everyone's code and trying to figure what they were doing without having done those sections with them, and ensuring that the encoding algorithm were properly implemented. 
+The Modular Matrix class was entirley of Nick and I's design and we worked on every part of it as a team. The greatest source of difficulties came from off by one errors in the modular matrix, ensuring that data positions were being populated correctly, ensuring that each method had consistant use of row and column. Another issue with this project was using git hub properly. There were multiple instances of group files being overwritten incorrectly which slowed down completeion of the project. 
+The Modular Matrix works with the reset of the project by being the actually output that all of the other classes support. All of the other classes work with each other to produce the information the Modular Matrix needs to print out an accurate QrCode. And then after the QrCode is built it is displayed using the Viewer class. 
+
+Our implementation of the modular matrix works in this systematic approach: First the finder patterns patterns are added, then the seperator are added, then the timing patterns are added, then the alignment patterns are added, then the dark module is added and after each of these steps have been completed in correct order the data bits are populated in all spaces not set to be resereved in the matrix info matrix. Then the correct masking scheme is decided by determing which would have the fewest number of penalties assocaited with it. Once the matrix determines which masking scheme to use it then masks the matrix and adds in the function field string and version field string. This represented the completion of the QRcode. 
+
+Test_driven_development
+The testing for this class was thorough and every working QR code that scanned correctly was another example of the correctness of the modular matrix. Initial testing in isolation included creating a testing.cpp file and a random binary number generator. This allowed us to build random binary numbers and based on that the length of that binary number set the version(length of the binary number) and mode. The testing.cpp file worked by creating a binary string and storing it into a vector. And then using the modular matrix constructor with a QRcode containing that binary string that was used as controlled input for the QRCode object. Then once the modular matrix was created and populated we went through bit by bit to determine if the encoding was properly being placed into the modular matrix. We ran this test multiple times creating binary encoding with varrying lengths and then using those binary encodings as the input for the modular matrix class which then produced correct modular matrix objects. 
+The initial testing we did before we could make sure data bits were being populated correctly was to test if each function pattern was being printed otu correctly. This was accomplished by printing out each function pattern one and by and developing it as we printed it out and searched for bugs. Our test driven development worked in the following format where we showed varrying the size of the modular matrix didnt change what the correct ouutput should be. The following series of print outs is an example of how we tested multiple binary encoding that we created in our random binary generator file which was usd in the testing.cpp file to build a correct modular matrix. 
+Tested matrix by printing the result of adding each of the modules from each method.
+TEST1:
+Test of adding finder patterns to the matrix:
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+
+/////////////////////////////////////////////////
+
+TEST2:
+Test of adding seperator patterns to the matrix:
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+
+TEST3:
+Test of adding timing patterns into the Module Matrix.
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| | | | | |@| | | | | | | |@| | | | | |@|
+|@|@|@|@|@|@|@| |@| |@| |@| |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | |
+
+ 
+TEST4:
+Test of adding of adding alignment patterns into the module matrix and increasing the Matrix size.
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| | | | | |@| | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | | | |@| | | | | |@|
+|@|@|@|@|@|@|@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+| | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | |
+| | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+| | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | |
+|@| | | | | |@| | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+ 
+ 
+TEST5:
+Test that adds the dark module to the matrix to the bottom left finder pattern.
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | | | |@| |@|@|@| |@|
+|@| | | | | |@| | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | | | |@| | | | | |@|
+|@|@|@|@|@|@|@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@| |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+| | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | |
+| | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+| | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+| | | | | | |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+| | | | | | | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | |@| |@| |@| | | | | | | | | | | | | | | |@| |@| |@| | | | |
+|@| | | | | |@| | | | | | | | | | | | | | | | | |@| | | |@| | | | | | | | | | | | | | | |@| | | |@| | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | |@|@|@|@|@| | | | | | | | | | | | | | | |@|@|@|@|@| | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@| |@|@|@| |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@| | | | | |@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+|@|@|@|@|@|@|@| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+
+
+TEST6:
+This test adds the data bits that is given to the module matrix class by the QRCodegenerator.
+
+|@|@|@|@|@|@|@| | | | | | | |@|@|@|@|@|@|@|
+|@| | | | | |@| | | |@|@| | |@| | | | | |@|
+|@| |@|@|@| |@| | | | | | | |@| |@|@|@| |@|
+|@| |@|@|@| |@| | |@|@|@|@| |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | | |@| | |@| |@|@|@| |@|
+|@| | | | | |@| | | |@| | | |@| | | | | |@|
+|@|@|@|@|@|@|@| |@| |@| |@| |@|@|@|@|@|@|@|
+| | | | | | | | | |@| |@| | | | | | | | | |
+| | | | | | |@| | |@|@| | | | | | | | | | |
+| | |@| |@|@| |@|@|@| | | |@| |@|@|@| |@|@|
+|@| |@|@| |@|@|@| |@|@|@|@| | | | |@|@| |@|
+|@| |@| | | | | |@|@| | |@| | | | | |@| | |
+|@|@|@| | |@|@|@|@|@|@|@|@| | |@| | | | | |
+| | | | | | | | |@|@|@|@| |@|@|@| |@|@|@|@|
+|@|@|@|@|@|@|@| | | |@| | | |@|@|@|@| | |@|
+|@| | | | | |@| | | |@|@| |@|@| | | | |@| |
+|@| |@|@|@| |@| | |@|@| | | | |@| |@| |@| |
+|@| |@|@|@| |@| | |@|@| | | | | | |@| | | |
+|@| |@|@|@| |@| | |@| |@|@|@| |@|@|@|@| | |
+|@| | | | | |@| | |@| | |@| | |@| | | | |@|
+|@|@|@|@|@|@|@| | |@|@|@|@|@| |@|@| |@| | |
+
+
+Test7:
+This adds the Masking to the Matrix
+
+|@|@|@|@|@|@|@| | | |@| |@| |@|@|@|@|@|@|@|
+|@| | | | | |@| |@|@|@| | | |@| | | | | |@|
+|@| |@|@|@| |@| | | |@| |@| |@| |@|@|@| |@|
+|@| |@|@|@| |@| | | |@| |@| |@| |@|@|@| |@|
+|@| |@|@|@| |@| |@| |@|@|@| |@| |@|@|@| |@|
+|@| | | | | |@| | |@|@|@| | |@| | | | | |@|
+|@|@|@|@|@|@|@| |@| |@| |@| |@|@|@|@|@|@|@|
+| | | | | | | | | | | | | | | | | | | | | |
+|@| |@| |@| |@| | |@| | |@| | | |@| | |@| |
+| |@|@|@|@| | | |@| | |@| | | | |@| | | |@|
+| | | |@|@|@|@|@|@|@| |@| | |@| |@|@| | | |
+|@|@|@|@| |@| |@|@| | |@|@|@| |@| |@|@|@| |
+| |@| | |@|@|@|@| |@| |@| | |@|@|@| |@| |@|
+| | | | | | | | |@| |@| | | |@| | | |@| |@|
+|@|@|@|@|@|@|@| | | | | |@| | |@| |@|@| | |
+|@| | | | | |@| | |@|@| | | |@|@| |@| | | |
+|@| |@|@|@| |@| |@|@| | |@| |@|@|@|@|@|@|@|
+|@| |@|@|@| |@| | | |@|@| |@| |@| | | |@| |
+|@| |@|@|@| |@| |@|@|@|@| |@|@|@| |@| | |@|
+|@| | | | | |@| | | | |@|@|@| | | |@| |@|@|
+|@|@|@|@|@|@|@| |@|@| |@| |@|@|@| | | | |@|
+
+
+Our unit testing followed in this format for multiple different binary encoded strings we designed ourselves. After this testing showed to be successful the testing as whole with the groups code showed that when the message was encoded properlly the modular matrix printed out the messsage correctly. However, due to bugs in the encoding the message didnt always make it to the matrix in the correct format. 
+
+
+
+
+
+
+
+
+
+
+

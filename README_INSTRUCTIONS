@@ -1,0 +1,4 @@
+Do make in the current directory. If that doesnt work delete the makefile and
+do:
+    qmake -project
+    qmake directory_name.proj
